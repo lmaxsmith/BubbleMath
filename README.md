@@ -9,10 +9,17 @@ The app is generating addition and subtraction problems based on a maximum highe
 
 TODO: 
 [] Replace input textbox and submit button with placeholder boxes for each digit that submits automatically when filled. 
+
 [] Disable player input during feedback timer
+
 [] MAKE IT BUBBLES!
+
 [] VR version
+
 [] AR version
+
 [] Save statistics between sessions (data should be ready to go. Prefer json)
+
 [] Adjust difficulty by recent performance
+
 [] Include subtraction problems at random above certain difficulty score
