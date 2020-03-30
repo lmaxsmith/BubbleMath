@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 using System;
+using UnityEngine.SceneManagement;
 
 /* Problem manager class sits in the scene and creates new math problems, 
  * Running the player through the game session. 
@@ -16,6 +17,7 @@ public class ProblemManager : MonoBehaviour
 {
 	public TextMeshProUGUI problemText;
 	public TextMeshProUGUI feedBackText;
+	public GameObject RestartButton;
 
 	public AnswerDigit answerDigitOnes;
 	public AnswerDigit answerDigitTens;
@@ -203,6 +205,13 @@ public class ProblemManager : MonoBehaviour
 		{
 			Debug.Log(string.Format(@"Problem: {0}, execution time: {1}, attempts required: {2}, correct: {3}.", problem.ProblemText, problem.ExecutionTime, problem.TriesToComplete, problem.Passed));
 		}
+
+		RestartButton.SetActive(true);
+	}
+
+	public void NewRound()
+	{
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
 	public void TypeNumber(int number)
@@ -292,6 +301,7 @@ public class Problem
 		digitsInAnswer = countDigits(answer);
 
 	}
+
 	
 	public int countDigits(int number)
 	{
