@@ -124,8 +124,8 @@ public class ProblemManager : MonoBehaviour
 		problems.Add(currentProblem);
 		problemsThisRound++;
 
-
-		problemText.text = string.Format(@"({0}): {1}", problemsThisRound, currentProblem.ProblemText);
+		feedBackText.text = "";
+		problemText.text = currentProblem.ProblemText;
 
 		SetupDigits();
 	}

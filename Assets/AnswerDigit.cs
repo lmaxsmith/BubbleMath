@@ -25,6 +25,7 @@ public class AnswerDigit : MonoBehaviour
 	public void ClearField()
 	{
 		hilight.SetActive(false);
+		answerdigitInt = 0;
 		answerField.text = "";
 	}
 
