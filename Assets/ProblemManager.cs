@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using System;
 
 /* Problem manager class sits in the scene and creates new math problems, 
  * Running the player through the game session. 
@@ -15,7 +16,12 @@ public class ProblemManager : MonoBehaviour
 {
 	public TextMeshProUGUI problemText;
 	public TextMeshProUGUI feedBackText;
-	public TMP_InputField answerField;
+
+	public AnswerDigit answerDigitOnes;
+	public AnswerDigit answerDigitTens;
+	public AnswerDigit answerDigitHundreds;
+	public List< AnswerDigit> answerDigits;
+	AnswerDigit currentDigit;
 
 	Problem currentProblem;
 	List<Problem> problems;
@@ -30,6 +36,7 @@ public class ProblemManager : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
+		answerDigits = new List<AnswerDigit>{ answerDigitHundreds, answerDigitTens, answerDigitOnes };
 		problems = new List<Problem>();
 		NextProblem();
 	}
@@ -49,12 +56,12 @@ public class ProblemManager : MonoBehaviour
 	//TODO: call automatically when answer has enough digits to be correct. 
 	public void Submit()
 	{
-		if (answerField.text == "")
-		{
-			return;
-		}
+		int answerInt = 
+			answerDigitHundreds.AnswerdigitInt * 100 + 
+			answerDigitTens.AnswerdigitInt * 10 + 
+			answerDigitOnes.AnswerdigitInt;
 
-		else if (currentProblem.SubmitAnswer(int.Parse(answerField.text)))
+		if (currentProblem.SubmitAnswer(answerInt))
 		{
 			feedBackText.text = "Good Job!";
 			StartCoroutine(WaitForNextProblem());
@@ -62,10 +69,11 @@ public class ProblemManager : MonoBehaviour
 		else
 		{
 			feedBackText.text = "Try again";
-			answerField.text = "";
 
 			StartCoroutine(WaitForNextAttempt());
 		}
+
+		currentDigit = null;
 	}
 
 	IEnumerator WaitForNextAttempt()
@@ -104,7 +112,7 @@ public class ProblemManager : MonoBehaviour
 	//Clears the screen prepares for new attempt
 	public void NextAttempt()
 	{
-		answerField.text = "";
+		SetupDigits();
 		feedBackText.text = "";
 
 	}
@@ -116,17 +124,61 @@ public class ProblemManager : MonoBehaviour
 		problems.Add(currentProblem);
 		problemsThisRound++;
 
-
-		problemText.text = string.Format(@"({0}): {1}", problemsThisRound, currentProblem.ProblemText);
-		answerField.text = "";
 		feedBackText.text = "";
+		problemText.text = currentProblem.ProblemText;
 
+		SetupDigits();
+	}
+	
+	//turn on the correct digit and initialize digit use
+	void SetupDigits()
+	{
+		ClearDigits();
+		switch (currentProblem.DigitsInAnswer)
+		{
+			case 1:
+				answerDigitOnes.gameObject.SetActive(true);
+				answerDigitTens.gameObject.SetActive(false);
+				answerDigitHundreds.gameObject.SetActive(false);
+				SetCurrentDigit(answerDigitOnes);
+				break;
+			case 2:
+				answerDigitOnes.gameObject.SetActive(true);
+				answerDigitTens.gameObject.SetActive(true);
+				answerDigitHundreds.gameObject.SetActive(false);
+				SetCurrentDigit(answerDigitTens);
+				break;
+			case 3:
+				answerDigitOnes.gameObject.SetActive(true);
+				answerDigitTens.gameObject.SetActive(true);
+				answerDigitHundreds.gameObject.SetActive(true);
+				SetCurrentDigit(answerDigitHundreds);
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	//reset answer board
+	void ClearDigits()
+	{
+		foreach (var digit in FindObjectsOfType<AnswerDigit>())
+		{
+			digit.ClearField();
+		}
+		currentDigit = null;
+	}
+	void SetCurrentDigit(AnswerDigit answerDigit)
+	{
+		currentDigit = answerDigit;
+		answerDigit.HilightField();
 	}
 
 	//closes the round and displays feedback
 	public void EndRound()
 	{
-		answerField.text = "";
+		ClearDigits();
 
 		IEnumerable<Problem> correctProblems =
 			from problem in problems
@@ -155,8 +207,28 @@ public class ProblemManager : MonoBehaviour
 
 	public void TypeNumber(int number)
 	{
-		answerField.text += number;
+		if (currentDigit)
+		{
+			//first fill the digit
+			currentDigit.FillField(number);
+
+			//then moveon according to state
+			if (currentDigit == answerDigitHundreds)
+			{
+				SetCurrentDigit(answerDigitTens);
+			}
+			else if (currentDigit == answerDigitTens)
+			{
+				SetCurrentDigit(answerDigitOnes);
+			}
+			else if (currentDigit == answerDigitOnes)
+			{
+				Submit();
+			}
+		}
 	}
+
+	
 
 }
 
@@ -190,6 +262,9 @@ public class Problem
 	public int TriesToComplete { get => triesToComplete;}
 	public float ExecutionTime { get => executionTime;}
 	public bool Passed { get => passed;}
+	public int DigitsInAnswer { get => digitsInAnswer;}
+
+	int digitsInAnswer;
 
 	//create a new math problem at creation of object
 	public Problem(ProblemType problemType, int MaxNumber)
@@ -199,14 +274,14 @@ public class Problem
 		switch (problemType)
 		{
 			case ProblemType.Plus:
-				answer = Random.Range(1, MaxNumber);
-				number1 = Random.Range(0, answer);
+				answer = UnityEngine.Random.Range(1, MaxNumber);
+				number1 = UnityEngine.Random.Range(0, answer);
 				number2 = answer - number1;
 				problemText = string.Format("{0} + {1} = ", number1, number2);
 				break;
 			case ProblemType.Minus:
-				number1 = Random.Range(1, MaxNumber);
-				number2 = Random.Range(0, number1);
+				number1 = UnityEngine.Random.Range(1, MaxNumber);
+				number2 = UnityEngine.Random.Range(0, number1);
 				answer = number1 - number2;
 				problemText = string.Format("{0} - {1} = ", number1, number2);
 				break;
@@ -214,8 +289,14 @@ public class Problem
 				break;
 		}
 
+		digitsInAnswer = countDigits(answer);
+
 	}
 	
+	public int countDigits(int number)
+	{
+		return number.ToString().Length;
+	}
 
 	public bool SubmitAnswer(int attempt)
 	{

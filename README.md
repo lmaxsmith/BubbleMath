@@ -8,18 +8,11 @@ Current: Apparently I don't have my macbook here so I can't actually get it into
 The app is generating addition and subtraction problems based on a maximum highest number, taking player input and giving feedback. At the end of a round, it displays the performance on the screen. 
 
 TODO: 
-[] Replace input textbox and submit button with placeholder boxes for each digit that submits automatically when filled. 
-
-[] Disable player input during feedback timer
-
+[*] Replace input textbox and submit button with placeholder boxes for each digit that submits automatically when filled. 
+[*] Disable player input during feedback timer
 [] MAKE IT BUBBLES!
-
 [] VR version
-
 [] AR version
-
 [] Save statistics between sessions (data should be ready to go. Prefer json)
-
 [] Adjust difficulty by recent performance
-
 [] Include subtraction problems at random above certain difficulty score
