@@ -15,9 +15,10 @@ using UnityEngine.SceneManagement;
 
 public class ProblemManager : MonoBehaviour
 {
-	public TextMeshProUGUI problemText;
-	public TextMeshProUGUI feedBackText;
 	public GameObject RestartButton;
+	public GameObject bubblePrefab;
+	public GameObject playSpace;
+	public LayerMask bubbleLayer;
 
 	public AnswerDigit answerDigitOnes;
 	public AnswerDigit answerDigitTens;
@@ -25,6 +26,7 @@ public class ProblemManager : MonoBehaviour
 	public List< AnswerDigit> answerDigits;
 	AnswerDigit currentDigit;
 
+	Bubble currentBubble;
 	Problem currentProblem;
 	List<Problem> problems;
 
@@ -65,12 +67,12 @@ public class ProblemManager : MonoBehaviour
 
 		if (currentProblem.SubmitAnswer(answerInt))
 		{
-			feedBackText.text = "Good Job!";
+			currentBubble.AnswerRight();
 			StartCoroutine(WaitForNextProblem());
 		}
 		else
 		{
-			feedBackText.text = "Try again";
+			currentBubble.TryAgain();
 
 			StartCoroutine(WaitForNextAttempt());
 		}
@@ -82,7 +84,7 @@ public class ProblemManager : MonoBehaviour
 	{
 		yield return new WaitForSeconds(2);
 
-		if (currentProblem.TriesToComplete < attemptsPerProblem)
+		if (currentProblem.TriesToComplete <= attemptsPerProblem)
 		{
 			NextAttempt();
 		}
@@ -115,8 +117,7 @@ public class ProblemManager : MonoBehaviour
 	public void NextAttempt()
 	{
 		SetupDigits();
-		feedBackText.text = "";
-
+		currentBubble.feedBackText.text = "";
 	}
 
 	//currently called by a button, but will be situational
@@ -126,12 +127,51 @@ public class ProblemManager : MonoBehaviour
 		problems.Add(currentProblem);
 		problemsThisRound++;
 
-		feedBackText.text = "";
-		problemText.text = currentProblem.ProblemText;
+		//replace the bubble
+		if (currentBubble != null)
+		{
+			Destroy(currentBubble.gameObject);
+		}
+		currentBubble = Instantiate(bubblePrefab).GetComponent<Bubble>();
+		currentBubble.transform.position = RandomInPlayspace(playSpace);
+
+		currentBubble.problemText.text = currentProblem.ProblemText;
 
 		SetupDigits();
 	}
-	
+
+	//picks a random spot within the playspace box
+	Vector3 RandomInPlayspace(GameObject playspace)
+	{
+		float x = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.x;
+		float y = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.y;
+		float z = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.z;
+
+		return new Vector3(x, y, z);
+	}
+
+	//onmou
+
+	//private void On()
+	//{
+	//	Debug.Log("Mouse down");
+	//	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+	//	RaycastHit hitInfo;
+	//	if (Physics.Raycast(ray, out hitInfo, 30f, bubbleLayer))
+	//	{
+	//		try
+	//		{
+	//			hitInfo.collider.gameObject.GetComponent<Bubble>().Pop();
+	//		}
+	//		catch (Exception)
+	//		{
+
+	//			throw;
+	//		}
+
+	//	}
+	//}
+
 	//turn on the correct digit and initialize digit use
 	void SetupDigits()
 	{
@@ -199,7 +239,7 @@ public class ProblemManager : MonoBehaviour
 		float averageTime = totalTime / correctProblems.Count<Problem>();
 		Debug.Log("Average time: " + averageTime);
 
-		feedBackText.text = string.Format(@"Great job! You answered {0} math problems in {1} seconds! That's {2} seconds per math problem!", correctProblems.Count<Problem>(), totalTime, averageTime);
+		currentBubble.feedBackText.text = string.Format(@"Great job! You answered {0} math problems in {1} seconds! That's {2} seconds per math problem!", correctProblems.Count<Problem>(), totalTime, averageTime);
 
 		foreach (var problem in problems)
 		{
