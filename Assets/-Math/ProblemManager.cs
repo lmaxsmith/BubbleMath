@@ -26,33 +26,29 @@ public class ProblemManager : MonoBehaviour
 	public List< AnswerDigit> answerDigits;
 	AnswerDigit currentDigit;
 
-	Bubble currentBubble;
-	Problem currentProblem;
-	List<Problem> problems;
+	//temporary public 
+	public Bubble currentBubble;
+	public ProblemData currentProblem;
+	public DataHandler dataHandler;
+	public RoundData currentRound;
 
 	const int attemptsPerProblem = 3;
 	const int problemsPerRound = 10;
 	int problemsThisRound = 0;
 
-	int currentMaxNumber = 20;
-
 	#region Unity Methods
+	//setup relationships
+	private void Awake()
+	{
+		dataHandler = FindObjectOfType<DataHandler>();
+	}
+
 	// Start is called before the first frame update
 	void Start()
     {
 		answerDigits = new List<AnswerDigit>{ answerDigitHundreds, answerDigitTens, answerDigitOnes };
-		problems = new List<Problem>();
-		NextProblem();
 	}
 
-    // Update is called once per frame
-    void Update()
-    {
-		if (Input.GetKeyDown(KeyCode.KeypadEnter))
-		{
-			Submit();
-		}
-    }
 	#endregion
 
 
@@ -88,7 +84,7 @@ public class ProblemManager : MonoBehaviour
 		{
 			NextAttempt();
 		}
-		else if (problemsThisRound < problemsPerRound)
+		else if (currentRound.problems.Count < problemsPerRound)
 		{
 			NextProblem();
 		}
@@ -103,7 +99,7 @@ public class ProblemManager : MonoBehaviour
 	{
 		yield return new WaitForSeconds(2);
 
-		if (problemsThisRound < problemsPerRound)
+		if ( currentRound.problems.Count < problemsPerRound)
 		{
 			NextProblem();
 		}
@@ -123,9 +119,9 @@ public class ProblemManager : MonoBehaviour
 	//currently called by a button, but will be situational
 	public void NextProblem()
 	{
-		currentProblem = new Problem(Problem.ProblemType.Plus, currentMaxNumber);
-		problems.Add(currentProblem);
-		problemsThisRound++;
+		currentProblem = new ProblemData(ProblemData.ProblemType.Plus, dataHandler.player.maxNumber);
+		Debug.Log(currentProblem.ProblemText);
+		currentRound.problems.Add(currentProblem);
 
 		//replace the bubble
 		if (currentBubble != null)
@@ -150,27 +146,6 @@ public class ProblemManager : MonoBehaviour
 		return new Vector3(x, y, z);
 	}
 
-	//onmou
-
-	//private void On()
-	//{
-	//	Debug.Log("Mouse down");
-	//	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-	//	RaycastHit hitInfo;
-	//	if (Physics.Raycast(ray, out hitInfo, 30f, bubbleLayer))
-	//	{
-	//		try
-	//		{
-	//			hitInfo.collider.gameObject.GetComponent<Bubble>().Pop();
-	//		}
-	//		catch (Exception)
-	//		{
-
-	//			throw;
-	//		}
-
-	//	}
-	//}
 
 	//turn on the correct digit and initialize digit use
 	void SetupDigits()
@@ -217,43 +192,42 @@ public class ProblemManager : MonoBehaviour
 		answerDigit.HilightField();
 	}
 
-	//closes the round and displays feedback
+	//closes the round, calculates results, and displays feedback
 	public void EndRound()
 	{
+		//clear display
 		ClearDigits();
 
-		IEnumerable<Problem> correctProblems =
-			from problem in problems
-			where problem.Passed
-			select problem;
-
-		Debug.Log("Correct problems: " + correctProblems);
-
-		float totalTime = 0;
-		foreach(Problem problem in problems)
+		//calculate info based on round played
+		currentRound.CalculateRoundInfo();
+		if (currentRound.averageTime < 15)
 		{
-			totalTime += problem.ExecutionTime;
+			dataHandler.player.maxNumber++;
+			
 		}
-		Debug.Log("Total time: " + totalTime);
-
-		float averageTime = totalTime / correctProblems.Count<Problem>();
-		Debug.Log("Average time: " + averageTime);
-
-		currentBubble.feedBackText.text = string.Format(@"Great job! You answered {0} math problems in {1} seconds! That's {2} seconds per math problem!", correctProblems.Count<Problem>(), totalTime, averageTime);
-
-		foreach (var problem in problems)
+		else if (currentRound.averageTime > 20)
 		{
-			Debug.Log(string.Format(@"Problem: {0}, execution time: {1}, attempts required: {2}, correct: {3}.", problem.ProblemText, problem.ExecutionTime, problem.TriesToComplete, problem.Passed));
+			dataHandler.player.maxNumber--;
 		}
+
+		//display feedback
+		currentBubble.feedBackText.text = string.Format(@"Great job! You answered {0} math problems in {1} seconds! That's {2} seconds per math problem!", 
+			currentRound.correctProblemCount, 
+			Mathf.Round(currentRound.totalTime), 
+			Mathf.Round(currentRound.averageTime));
+
+		dataHandler.SaveData();
 
 		RestartButton.SetActive(true);
 	}
 
 	public void NewRound()
 	{
-		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		currentRound = dataHandler.AddRound();
+		NextProblem();
 	}
 
+	//adds number to the answer place according to digit's turn when pressing number buttons
 	public void TypeNumber(int number)
 	{
 		if (currentDigit)
@@ -284,85 +258,3 @@ public class ProblemManager : MonoBehaviour
 
 
 
-//OOP style. Containing one math problem. 
-public class Problem
-{
-	int number1;
-	int number2;
-	int answer;
-	public enum ProblemType
-	{
-		Plus, Minus
-	}
-	ProblemType problemType;
-
-	//to display to the player
-	string problemText;
-
-	//Tracks execution by the player. Let's us know which problems are easier/harder,
-	//So we can understand player progress and adjust difficulty over time. 
-	float startTime;
-	float endTime;
-	float executionTime;
-	int triesToComplete = 1;
-	bool passed;
-
-	public string ProblemText { get => problemText;}
-	public int TriesToComplete { get => triesToComplete;}
-	public float ExecutionTime { get => executionTime;}
-	public bool Passed { get => passed;}
-	public int DigitsInAnswer { get => digitsInAnswer;}
-
-	int digitsInAnswer;
-
-	//create a new math problem at creation of object
-	public Problem(ProblemType problemType, int MaxNumber)
-	{
-		startTime = Time.realtimeSinceStartup;
-
-		switch (problemType)
-		{
-			case ProblemType.Plus:
-				answer = UnityEngine.Random.Range(1, MaxNumber);
-				number1 = UnityEngine.Random.Range(0, answer);
-				number2 = answer - number1;
-				problemText = string.Format("{0} + {1} = ", number1, number2);
-				break;
-			case ProblemType.Minus:
-				number1 = UnityEngine.Random.Range(1, MaxNumber);
-				number2 = UnityEngine.Random.Range(0, number1);
-				answer = number1 - number2;
-				problemText = string.Format("{0} - {1} = ", number1, number2);
-				break;
-			default:
-				break;
-		}
-
-		digitsInAnswer = countDigits(answer);
-
-	}
-
-	
-	public int countDigits(int number)
-	{
-		return number.ToString().Length;
-	}
-
-	public bool SubmitAnswer(int attempt)
-	{
-
-		if (attempt == answer)
-		{
-			endTime = Time.realtimeSinceStartup;
-			executionTime = endTime - startTime;
-			passed = true;
-			return true;
-		}
-		else
-		{
-			triesToComplete++;
-			return false;
-		}
-	}
-
-}
