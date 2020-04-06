@@ -210,6 +210,7 @@ public class DataHandler : MonoBehaviour
 				answer = number1 - number2;
 				problemText = string.Format("{0} - {1} = ", number1, number2);
 				break;
+			
 			default:
 				break;
 		}

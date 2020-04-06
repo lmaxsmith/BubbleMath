@@ -119,7 +119,11 @@ public class ProblemManager : MonoBehaviour
 	//currently called by a button, but will be situational
 	public void NextProblem()
 	{
-		currentProblem = new ProblemData(ProblemData.ProblemType.Plus, dataHandler.player.maxNumber);
+		int problemTypeInt = GetProblemTypeByMaxNumber(dataHandler.player.maxNumber);
+		Debug.Log("Problem Type: " + (ProblemData.ProblemType)problemTypeInt);
+		currentProblem = new ProblemData(
+			(ProblemData.ProblemType)problemTypeInt, 
+			dataHandler.player.maxNumber / (problemTypeInt + 1));
 		Debug.Log(currentProblem.ProblemText);
 		currentRound.problems.Add(currentProblem);
 
@@ -134,6 +138,22 @@ public class ProblemManager : MonoBehaviour
 		currentBubble.problemText.text = currentProblem.ProblemText;
 
 		SetupDigits();
+	}
+
+	//as the max number increases, add more math types
+	int GetProblemTypeByMaxNumber(int maxNumber)
+	{
+		int maxProblemType = 1;
+		if (maxNumber >= 20)
+		{
+			maxProblemType++;
+		}
+		//if (maxNumber >= 40)//TODO: Add multiplication
+		//{
+		//	maxProblemType++;
+		//}
+
+		return Mathf.FloorToInt(UnityEngine.Random.value * maxProblemType);
 	}
 
 	//picks a random spot within the playspace box
