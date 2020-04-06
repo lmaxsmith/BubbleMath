@@ -103,9 +103,4 @@ public class Bubble : MonoBehaviour
 		GameObject.Destroy(gameObject);
 	}
 
-	// Update is called once per frame
-	void Update()
-    {
-        
-    }
 }
