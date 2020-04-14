@@ -30,38 +30,45 @@ public class DataHandler : MonoBehaviour
 
 	public void LoadData()
 	{
-		try
+		int attempt = 0;
+		while (player == null)
 		{
-			DirectoryInfo directoryInfo = new DirectoryInfo(Application.persistentDataPath);
-			playerFiles = directoryInfo.GetFiles("*.plr");
-
-		}
-		catch (Exception)
-		{
-			AddPlayer();
-			throw;
-		}
-
-		if (playerFiles.Length == 0)
-		{
-			AddPlayer();
-		}
-		else
-		{
-			players = new List<PlayerData>();
-			foreach (var playerFile in playerFiles)
+			try
 			{
-				players.Add(
-					JsonConvert.DeserializeObject<PlayerData>(
-				File.ReadAllText(
-					playerFile.FullName)));
+				DirectoryInfo directoryInfo = new DirectoryInfo(saveFolder);
+				playerFiles = directoryInfo.GetFiles("*.plr");
 
 			}
-			SwitchUser(0);
+			catch (Exception)
+			{
+				throw;
+			}
 
+			if (playerFiles.Length == 0 || playerFiles == null)
+			{
+				AddPlayer();
+			}
+			else
+			{
+				players = new List<PlayerData>();
+				foreach (var playerFile in playerFiles)
+				{
+					players.Add(
+						JsonConvert.DeserializeObject<PlayerData>(
+					File.ReadAllText(
+						playerFile.FullName)));
+
+				}
+				SwitchUser(0);
+			}
+
+			if (attempt > 5)
+			{
+				Debug.LogError("Failed to load player data. ");
+				return;
+			}
 
 		}
-
 
 	}
 
@@ -71,6 +78,7 @@ public class DataHandler : MonoBehaviour
 		players.Add(playerData);
 		player.maxNumber = maxNumberDefault;
 		SaveData();
+		LoadData();
 	}
 	public RoundData AddRound()
 	{
