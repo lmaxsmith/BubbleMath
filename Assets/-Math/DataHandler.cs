@@ -27,19 +27,12 @@ public class DataHandler : MonoBehaviour
 		//startup user file
 	}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-	
 
 	public void LoadData()
 	{
 		try
 		{
-			DirectoryInfo directoryInfo = new DirectoryInfo(saveFolder);
+			DirectoryInfo directoryInfo = new DirectoryInfo(Application.persistentDataPath);
 			playerFiles = directoryInfo.GetFiles("*.plr");
 
 		}
