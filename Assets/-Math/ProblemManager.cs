@@ -163,7 +163,9 @@ public class ProblemManager : MonoBehaviour
 		float y = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.y;
 		float z = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.z;
 
-		return new Vector3(x, y, z);
+		return new Vector3(x, y, z) + playspace.transform.position;
+
+		
 	}
 
 
