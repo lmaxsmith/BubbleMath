@@ -100,7 +100,7 @@ public class DataHandler : MonoBehaviour
 		{
 			Debug.Log(string.Format(@"Saving {0}/Player {1}.plr", saveFolder, i));
 			File.WriteAllText(
-				Path.Combine(saveFolder, string.Format(@"{0}/Player {1}.plr", i)), 
+				Path.Combine(saveFolder, string.Format(@"Player {0}.plr", i)), 
 				JsonConvert.SerializeObject(player, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include }));
 
 		}
