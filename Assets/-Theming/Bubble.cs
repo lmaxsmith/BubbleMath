@@ -83,7 +83,7 @@ public class Bubble : MonoBehaviour
 	{
 		occlusionObject.SetActive(false);
 		problemText.gameObject.SetActive(true);
-
+		GetComponent<Collider>().enabled = false;
 		PlayEffects(popEffect, popSound);
 
 	}
