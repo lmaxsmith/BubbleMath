@@ -11,6 +11,7 @@ public class WASD : MonoBehaviour
     public float transformSpeed = 1;
     public float mouseSpeed = 4;
     public bool useMouseRotation = true;
+    public bool includeVerticality = false;
 
     float modTransformSpeed;
 
@@ -74,7 +75,8 @@ public class WASD : MonoBehaviour
         //WASD strafing
         if (Input.GetKey(KeyCode.W))
         {
-            transform.localPosition += new Vector3(transform.TransformDirection(Vector3.forward).x, 0, transform.TransformDirection(Vector3.forward).z) / 50 * modTransformSpeed;
+
+            transform.localPosition += GetZMovement(transform.TransformDirection(Vector3.forward)) / 50 * modTransformSpeed;
         }
         if (Input.GetKey(KeyCode.A))
         {
@@ -82,7 +84,7 @@ public class WASD : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.S))
         {
-            transform.localPosition += new Vector3(transform.TransformDirection(Vector3.back).x, 0, transform.TransformDirection(Vector3.back).z) / 50 * modTransformSpeed;
+            transform.localPosition += GetZMovement(transform.TransformDirection(Vector3.back)) / 50 * modTransformSpeed;
         }
         if (Input.GetKey(KeyCode.D))
         {
@@ -95,6 +97,19 @@ public class WASD : MonoBehaviour
         if (Input.GetKey(KeyCode.E))
         {
             transform.localPosition += Vector3.up / 50 * modTransformSpeed;
+        }
+    }
+
+    //translates forward and backward movement to include verticality only if option is selected. 
+    Vector3 GetZMovement(Vector3 initialVector)
+    {
+        if (includeVerticality)
+        {
+            return initialVector;
+        }
+        else
+        {
+            return new Vector3(initialVector.x, 0, initialVector.z);
         }
     }
 

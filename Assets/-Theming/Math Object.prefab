@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 339706317487871188}
   - component: {fileID: 339706317487871191}
   - component: {fileID: 339706317487871190}
+  - component: {fileID: 7367282319056463545}
+  - component: {fileID: 8764757218847660964}
   m_Layer: 9
   m_Name: Math Object
   m_TagString: Untagged
@@ -126,6 +128,66 @@ MonoBehaviour:
   ambientAudioSource: {fileID: 0}
   problemText: {fileID: 6387701768032517316}
   feedBackText: {fileID: 6387701768088722077}
+--- !u!114 &7367282319056463545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339706317487871185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f084ebd23d9472d4d91b6349ef513ebd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 0.5
+  transformSpeed: 1
+  mouseSpeed: 4
+  useMouseRotation: 1
+  includeVerticality: 1
+--- !u!20 &8764757218847660964
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339706317487871185}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 0
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1 &3162873034012967257
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,7 +692,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 4}
+  m_AnchoredPosition: {x: 0, y: 0.5}
   m_SizeDelta: {x: 157.9, y: 119}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6387701768032517317
@@ -725,7 +787,7 @@ MonoBehaviour:
   m_firstVisibleCharacter: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0, w: 40.64335}
   m_textInfo:
     textComponent: {fileID: 6387701768032517316}
     characterCount: 12
@@ -785,7 +847,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.875, y: -62}
+  m_AnchoredPosition: {x: -0.875, y: -41.1}
   m_SizeDelta: {x: 428.25, y: 246.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6387701768088722050

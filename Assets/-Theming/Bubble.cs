@@ -86,6 +86,17 @@ public class Bubble : MonoBehaviour
 		GetComponent<Collider>().enabled = false;
 		PlayEffects(popEffect, popSound);
 
+		WASD wasd;
+		if (wasd = GetComponent<WASD>())
+		{
+			wasd.enabled = false;
+		}
+		Camera camera;
+		if (camera = GetComponent<Camera>())
+		{
+			camera.enabled = false;
+		}
+
 	}
 	public void AnswerRight()
 	{
