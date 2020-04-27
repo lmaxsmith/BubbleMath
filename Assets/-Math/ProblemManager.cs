@@ -33,7 +33,7 @@ public class ProblemManager : MonoBehaviour
 	public RoundData currentRound;
 
 	const int attemptsPerProblem = 3;
-	const int problemsPerRound = 10;
+	public int problemsPerRound = 10;
 	int problemsThisRound = 0;
 
 	#region Unity Methods
@@ -163,7 +163,9 @@ public class ProblemManager : MonoBehaviour
 		float y = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.y;
 		float z = (UnityEngine.Random.value - .5f) * playspace.transform.localScale.z;
 
-		return new Vector3(x, y, z);
+		return new Vector3(x, y, z) + playspace.transform.position;
+
+		
 	}
 
 
@@ -217,6 +219,7 @@ public class ProblemManager : MonoBehaviour
 	{
 		//clear display
 		ClearDigits();
+		RestartButton.SetActive(true);
 
 		//calculate info based on round played
 		currentRound.CalculateRoundInfo();
@@ -243,6 +246,7 @@ public class ProblemManager : MonoBehaviour
 
 	public void NewRound()
 	{
+		RestartButton.SetActive(false);
 		currentRound = dataHandler.AddRound();
 		NextProblem();
 	}

@@ -22,58 +22,65 @@ public class DataHandler : MonoBehaviour
     void Start()
     {
 		players = new List<PlayerData>();
-		LoadData();
+		if (saveFolder == null || saveFolder == "")
+		{
+			saveFolder = Application.persistentDataPath;
+		}
+		Debug.Log("Save folder: " + saveFolder);
 
-		//startup user file
+		LoadData();
+		
 	}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-	
 
 	public void LoadData()
 	{
-		try
-		{
-			DirectoryInfo directoryInfo = new DirectoryInfo(saveFolder);
-			playerFiles = directoryInfo.GetFiles("*.plr");
+		int attempt = 0;
 
-		}
-		catch (Exception)
+		while (players.Count < 1)
 		{
-			AddPlayer();
-			throw;
-		}
 
-		if (playerFiles.Length == 0)
-		{
-			AddPlayer();
-		}
-		else
-		{
-			players = new List<PlayerData>();
-			foreach (var playerFile in playerFiles)
+			try
 			{
-				players.Add(
-					JsonConvert.DeserializeObject<PlayerData>(
-				File.ReadAllText(
-					playerFile.FullName)));
+				DirectoryInfo directoryInfo = new DirectoryInfo(saveFolder);
+				playerFiles = directoryInfo.GetFiles("*.plr");
 
 			}
-			SwitchUser(0);
+			catch (Exception)
+			{
+				throw;
+			}
 
+			if (playerFiles.Length == 0 || playerFiles == null)
+			{
+				AddPlayer();
+			}
+			else
+			{
+				foreach (var playerFile in playerFiles)
+				{
+					players.Add(
+						JsonConvert.DeserializeObject<PlayerData>(
+					File.ReadAllText(
+						playerFile.FullName)));
 
+				}
+				SwitchUser(0); //TODO: Make interface for switching users.
+			}
+
+			if (attempt > 5)
+			{
+				Debug.LogError("Failed to load player data. ");
+				return;
+			}
+			attempt++;
 		}
-
 
 	}
 
 	public void AddPlayer()
 	{
+		Debug.Log("Adding Player " + players.Count);
 		PlayerData playerData = new PlayerData(players.Count);
 		players.Add(playerData);
 		player.maxNumber = maxNumberDefault;
@@ -91,8 +98,9 @@ public class DataHandler : MonoBehaviour
 		//save players
 		for (int i = 0; i < players.Count; i++)
 		{
+			Debug.Log(string.Format(@"Saving {0}/Player {1}.plr", saveFolder, i));
 			File.WriteAllText(
-				string.Format(@"{0}/Player {1}.plr", saveFolder, i), 
+				Path.Combine(saveFolder, string.Format(@"Player {0}.plr", i)), 
 				JsonConvert.SerializeObject(player, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include }));
 
 		}
@@ -102,6 +110,7 @@ public class DataHandler : MonoBehaviour
 	public void SwitchUser(int userIndex)//TODO: Setup interface to go between multiple users
 	{
 		player = players[userIndex];
+		Debug.Log(string.Format("Loaded player {0} {1}", userIndex, player.playerName));
 	}
 }
 
