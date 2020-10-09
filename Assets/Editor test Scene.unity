@@ -2468,7 +2468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RestartButton: {fileID: 1833348056}
-  bubblePrefab: {fileID: 339706317487871185, guid: 9d184c13ecff8f84caff1f4dc4f4ea29,
+  bubblePrefab: {fileID: 339706317487871185, guid: 49114a83debe10c43a07a004559225fc,
     type: 3}
   playSpace: {fileID: 392843004}
   bubbleLayer:

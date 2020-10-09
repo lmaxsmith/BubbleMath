@@ -29,10 +29,12 @@ public class DataHandler : MonoBehaviour
 		Debug.Log("Save folder: " + saveFolder);
 
 		LoadData();
-		
-	}
+		SwitchUser(0); //TODO: Make interface for switching users.
+    }
 
-
+	/// <summary>
+	/// Deserialize all the data from the cloud. 
+	/// </summary>
 	public void LoadData()
 	{
 		int attempt = 0;
@@ -53,7 +55,7 @@ public class DataHandler : MonoBehaviour
 
 			if (playerFiles.Length == 0 || playerFiles == null)
 			{
-				AddPlayer();
+				AddNewPlayer();
 			}
 			else
 			{
@@ -65,7 +67,6 @@ public class DataHandler : MonoBehaviour
 						playerFile.FullName)));
 
 				}
-				SwitchUser(0); //TODO: Make interface for switching users.
 			}
 
 			if (attempt > 5)
@@ -78,7 +79,10 @@ public class DataHandler : MonoBehaviour
 
 	}
 
-	public void AddPlayer()
+	/// <summary>
+	/// Create new player, add to collection and save data.
+	/// </summary>
+	public void AddNewPlayer()
 	{
 		Debug.Log("Adding Player " + players.Count);
 		PlayerData playerData = new PlayerData(players.Count);
@@ -86,6 +90,11 @@ public class DataHandler : MonoBehaviour
 		player.maxNumber = maxNumberDefault;
 		SaveData();
 	}
+	
+	/// <summary>
+	/// Add new empty round data to the player's round collection.
+	/// </summary>
+	/// <returns>New empty round. (already in collection)</returns>
 	public RoundData AddRound()
 	{
 		RoundData round = new RoundData();
@@ -93,6 +102,9 @@ public class DataHandler : MonoBehaviour
 		return round;
 	}
 
+	/// <summary>
+	/// serialize player data including all rounds to filesystem. 
+	/// </summary>
 	public void SaveData()
 	{
 		//save players
@@ -104,9 +116,13 @@ public class DataHandler : MonoBehaviour
 				JsonConvert.SerializeObject(player, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include }));
 
 		}
-		LoadData();
+		LoadData();//why do I call load right after save?
 	}
 
+	/// <summary>
+	/// Sets a user to current. Including from null to selection. 
+	/// </summary>
+	/// <param name="userIndex"></param>
 	public void SwitchUser(int userIndex)//TODO: Setup interface to go between multiple users
 	{
 		player = players[userIndex];

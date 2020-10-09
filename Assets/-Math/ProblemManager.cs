@@ -246,6 +246,7 @@ public class ProblemManager : MonoBehaviour
 
 	public void NewRound()
 	{
+		Debug.Log("New Round");
 		RestartButton.SetActive(false);
 		currentRound = dataHandler.AddRound();
 		NextProblem();
