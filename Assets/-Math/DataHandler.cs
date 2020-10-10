@@ -6,15 +6,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft;
 using Newtonsoft.Json;
+using Random = System.Random;
 
 
 public class DataHandler : MonoBehaviour
 {
 	public string saveFolder;
 
-	public PlayerData player;
+	public int currentPlayerIndex;
 	public List<PlayerData> players; //make private
 	public FileInfo[] playerFiles; //make private
+	private PlayerData player;
+
+	public PlayerData Player => players[currentPlayerIndex];
 
 	const int maxNumberDefault = 10;
 
@@ -28,24 +32,25 @@ public class DataHandler : MonoBehaviour
 		}
 		Debug.Log("Save folder: " + saveFolder);
 
-		LoadData();
-		SwitchUser(0); //TODO: Make interface for switching users.
+		players = LoadPlayerData();
+		SaveData();
+		SwitchPlayer(0); //TODO: Make interface for switching users.
     }
 
 	/// <summary>
 	/// Deserialize all the data from the cloud. 
 	/// </summary>
-	public void LoadData()
+	public List<PlayerData> LoadPlayerData()
 	{
 		int attempt = 0;
-
-		while (players.Count < 1)
+		List<PlayerData> playerDatas = new List<PlayerData>();
+		
+		while (playerDatas.Count < 1)
 		{
-
 			try
 			{
 				DirectoryInfo directoryInfo = new DirectoryInfo(saveFolder);
-				playerFiles = directoryInfo.GetFiles("*.plr");
+				playerFiles = directoryInfo.GetFiles("Player*");
 
 			}
 			catch (Exception)
@@ -55,13 +60,13 @@ public class DataHandler : MonoBehaviour
 
 			if (playerFiles.Length == 0 || playerFiles == null)
 			{
-				AddNewPlayer();
+				playerDatas.Add(new PlayerData(playerDatas.Count, maxNumberDefault));
 			}
 			else
 			{
 				foreach (var playerFile in playerFiles)
 				{
-					players.Add(
+					playerDatas.Add(
 						JsonConvert.DeserializeObject<PlayerData>(
 					File.ReadAllText(
 						playerFile.FullName)));
@@ -72,24 +77,14 @@ public class DataHandler : MonoBehaviour
 			if (attempt > 5)
 			{
 				Debug.LogError("Failed to load player data. ");
-				return;
+				return null;
 			}
 			attempt++;
 		}
 
+		return playerDatas;
 	}
 
-	/// <summary>
-	/// Create new player, add to collection and save data.
-	/// </summary>
-	public void AddNewPlayer()
-	{
-		Debug.Log("Adding Player " + players.Count);
-		PlayerData playerData = new PlayerData(players.Count);
-		players.Add(playerData);
-		player.maxNumber = maxNumberDefault;
-		SaveData();
-	}
 	
 	/// <summary>
 	/// Add new empty round data to the player's round collection.
@@ -98,7 +93,7 @@ public class DataHandler : MonoBehaviour
 	public RoundData AddRound()
 	{
 		RoundData round = new RoundData();
-		player.rounds.Add(round);
+		players[currentPlayerIndex].rounds.Add(round);
 		return round;
 	}
 
@@ -110,23 +105,22 @@ public class DataHandler : MonoBehaviour
 		//save players
 		for (int i = 0; i < players.Count; i++)
 		{
-			Debug.Log(string.Format(@"Saving {0}/Player {1}.plr", saveFolder, i));
+			Debug.Log(string.Format(@"Saving {0}/Player {1}.json", saveFolder, i));
 			File.WriteAllText(
-				Path.Combine(saveFolder, string.Format(@"Player {0}.plr", i)), 
-				JsonConvert.SerializeObject(player, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include }));
+				Path.Combine(saveFolder, string.Format(@"Player {0}.json", i)), 
+				JsonConvert.SerializeObject(players[i]));
 
 		}
-		LoadData();//why do I call load right after save?
 	}
 
 	/// <summary>
 	/// Sets a user to current. Including from null to selection. 
 	/// </summary>
 	/// <param name="userIndex"></param>
-	public void SwitchUser(int userIndex)//TODO: Setup interface to go between multiple users
+	public void SwitchPlayer(int userIndex)//TODO: Setup interface to go between multiple users
 	{
-		player = players[userIndex];
-		Debug.Log(string.Format("Loaded player {0} {1}", userIndex, player.playerName));
+		currentPlayerIndex = userIndex;
+		Debug.Log(string.Format("Loaded player {0} {1}", userIndex, players[currentPlayerIndex].playerName));
 	}
 }
 
@@ -136,17 +130,18 @@ public class DataHandler : MonoBehaviour
 {
 	[SerializeField] public string playerName;
 	[SerializeField] public List<RoundData> rounds;
-	[SerializeField] public int maxNumber = 10;
+	[SerializeField] public int maxNumber;
 	[SerializeField] public float avgTimeAtCurrentMax;
 
 	public PlayerData()
 	{
 		rounds = new List<RoundData>();
 	}
-	public PlayerData(int playerNumber)
+	public PlayerData(int playerNumber, int maxNumber)
 	{
 		rounds = new List<RoundData>();
 		playerName = "Player " + playerNumber;
+		this.maxNumber = maxNumber;
 	}
 }
 
@@ -193,7 +188,7 @@ public class DataHandler : MonoBehaviour
 	[SerializeField] int answer;
 	public enum ProblemType
 	{
-		Plus, Minus
+		Plus, Minus, Times, DividedBy
 	}
 	[SerializeField] ProblemType problemType;
 
@@ -216,26 +211,48 @@ public class DataHandler : MonoBehaviour
 
 	int digitsInAnswer;
 
-	//create a new math problem at creation of object
+	/// <summary>
+	/// create a new math problem at creation of object
+	/// </summary>
+	/// <param name="problemType"></param>
+	/// <param name="MaxNumber"></param>
 	public ProblemData(ProblemType problemType, int MaxNumber)
 	{
 		startTime = Time.realtimeSinceStartup;
-
+		Random random = new Random();
 		switch (problemType)
 		{
 			case ProblemType.Plus:
-				answer = UnityEngine.Random.Range(1, MaxNumber);
-				number1 = UnityEngine.Random.Range(0, answer);
+				answer = UnityEngine.Random.Range(MaxNumber / 4, MaxNumber);
+				number1 = UnityEngine.Random.Range(1, answer);
 				number2 = answer - number1;
 				problemText = string.Format("{0} + {1} = ", number1, number2);
 				break;
 			case ProblemType.Minus:
-				number1 = UnityEngine.Random.Range(1, MaxNumber);
-				number2 = UnityEngine.Random.Range(0, number1);
+				number1 = UnityEngine.Random.Range(MaxNumber / 4, MaxNumber * 3/4);
+				number2 = UnityEngine.Random.Range(1, number1);
 				answer = number1 - number2;
 				problemText = string.Format("{0} - {1} = ", number1, number2);
 				break;
-			
+			case ProblemType.Times:
+				//control for weird breaking case
+				if (MaxNumber < 10)
+					MaxNumber = 10;
+				MaxNumber = Mathf.CeilToInt(MaxNumber * .75f);
+				number1 = random.Next(2, MaxNumber / 2);
+				number2 = random.Next(2, MaxNumber / number1);
+				answer = number1 * number2;
+				problemText = string.Format("{0} * {1} = ", number1, number2);
+				break;
+			case ProblemType.DividedBy:
+				if (MaxNumber < 16)
+					MaxNumber = 16;
+				MaxNumber = MaxNumber / 2;
+				answer = random.Next(2, Mathf.CeilToInt(Mathf.Sqrt(MaxNumber)));
+				number2 = random.Next(2, Mathf.CeilToInt(Mathf.Sqrt(MaxNumber)));
+				number1 = answer * number2;
+				problemText = string.Format("{0} / {1} = ", number1, number2);
+				break;
 			default:
 				break;
 		}
@@ -245,6 +262,13 @@ public class DataHandler : MonoBehaviour
 
 	}
 
+	/// <summary>
+	/// Empty ctor for deserialization
+	/// </summary>
+	public ProblemData()
+	{
+		
+	}
 
 	public int countDigits(int number)
 	{

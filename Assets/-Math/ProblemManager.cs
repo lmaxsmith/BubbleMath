@@ -119,11 +119,11 @@ public class ProblemManager : MonoBehaviour
 	//currently called by a button, but will be situational
 	public void NextProblem()
 	{
-		int problemTypeInt = GetProblemTypeByMaxNumber(dataHandler.player.maxNumber);
+		int problemTypeInt = GetProblemTypeByMaxNumber(dataHandler.Player.maxNumber);
 		Debug.Log("Problem Type: " + (ProblemData.ProblemType)problemTypeInt);
 		currentProblem = new ProblemData(
 			(ProblemData.ProblemType)problemTypeInt, 
-			dataHandler.player.maxNumber / (problemTypeInt + 1));
+			dataHandler.Player.maxNumber / (problemTypeInt + 1));
 		Debug.Log(currentProblem.ProblemText);
 		currentRound.problems.Add(currentProblem);
 
@@ -145,14 +145,11 @@ public class ProblemManager : MonoBehaviour
 	{
 		int maxProblemType = 1;
 		if (maxNumber >= 20)
-		{
 			maxProblemType++;
-		}
-		//if (maxNumber >= 40)//TODO: Add multiplication
-		//{
-		//	maxProblemType++;
-		//}
-
+		if (maxNumber >= 40)
+			maxProblemType++;
+		if (maxNumber >= 80)
+			maxProblemType++;
 		return Mathf.FloorToInt(UnityEngine.Random.value * maxProblemType);
 	}
 
@@ -225,12 +222,12 @@ public class ProblemManager : MonoBehaviour
 		currentRound.CalculateRoundInfo();
 		if (currentRound.averageTime < 15)
 		{
-			dataHandler.player.maxNumber++;
+			dataHandler.Player.maxNumber++;
 			
 		}
 		else if (currentRound.averageTime > 20)
 		{
-			dataHandler.player.maxNumber--;
+			dataHandler.Player.maxNumber--;
 		}
 
 		//display feedback
