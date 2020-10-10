@@ -48,7 +48,7 @@ public class DataHandler : MonoBehaviour
 			try
 			{
 				DirectoryInfo directoryInfo = new DirectoryInfo(saveFolder);
-				playerFiles = directoryInfo.GetFiles("Player*");
+				playerFiles = directoryInfo.GetFiles("Player *");
 
 			}
 			catch (Exception)
