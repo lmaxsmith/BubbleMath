@@ -76,6 +76,10 @@ public class ProblemManager : MonoBehaviour
 		currentDigit = null;
 	}
 
+	#region Attempts
+
+	
+
 	IEnumerator WaitForNextAttempt()
 	{
 		yield return new WaitForSeconds(2);
@@ -116,6 +120,9 @@ public class ProblemManager : MonoBehaviour
 		currentBubble.feedBackText.text = "";
 	}
 
+	#endregion
+
+	
 	//currently called by a button, but will be situational
 	public void NextProblem()
 	{
@@ -165,7 +172,7 @@ public class ProblemManager : MonoBehaviour
 		
 	}
 
-
+	#region Digits
 	//turn on the correct digit and initialize digit use
 	void SetupDigits()
 	{
@@ -210,6 +217,10 @@ public class ProblemManager : MonoBehaviour
 		currentDigit = answerDigit;
 		answerDigit.HilightField();
 	}
+
+	
+
+	#endregion
 
 	//closes the round, calculates results, and displays feedback
 	public void EndRound()

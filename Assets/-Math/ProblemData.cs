@@ -4,25 +4,25 @@ using Random = System.Random;
 
 [Serializable] public class ProblemData
 {
-    [SerializeField] int number1;
-    [SerializeField] int number2;
-    [SerializeField] int answer;
+    [SerializeField] public int number1;
+    [SerializeField] public int number2;
+    [SerializeField] public int answer;
     public enum ProblemType
     {
         Plus, Minus, Times, DividedBy
     }
-    [SerializeField] ProblemType problemType;
+    [SerializeField] public ProblemType problemType;
 
     //to display to the player
-    [SerializeField] string problemText;
+    [SerializeField] public string problemText;
 
     //Tracks execution by the player. Let's us know which problems are easier/harder,
     //So we can understand player progress and adjust difficulty over time. 
-    [SerializeField] float startTime;
-    [SerializeField] float endTime;
-    [SerializeField] float executionTime;
-    [SerializeField] int triesToComplete = 1;
-    [SerializeField] bool passed;
+    [SerializeField] public float startTime;
+    [SerializeField] public float endTime;
+    [SerializeField] public float executionTime;
+    [SerializeField] public int triesToComplete = 1;
+    [SerializeField] public bool passed;
 
     public string ProblemText { get => problemText; }
     public int TriesToComplete { get => triesToComplete; }

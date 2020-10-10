@@ -90,8 +90,8 @@ public class DataHandler : MonoBehaviour
 	/// <returns>New empty round. (already in collection)</returns>
 	public RoundData AddRound()
 	{
-		RoundData round = new RoundData();
-		players[currentPlayerIndex].rounds.Add(round);
+		RoundData round = new RoundData(Player.maxNumber);
+		Player.rounds.Add(round);
 		return round;
 	}
 
